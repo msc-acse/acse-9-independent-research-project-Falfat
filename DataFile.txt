@@ -1,0 +1,14 @@
+#Data required for fracture generation
+
+#radius of circle
+radius = 2
+#length of box
+length = 20
+#number of circles to be inserted in box, if random size isn't desired
+numberofcircles = 20
+#Orientation distribution
+orientation = uniform
+#location distribution
+location = uniform
+#fracture shape
+shape = circle
