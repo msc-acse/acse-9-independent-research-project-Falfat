@@ -17,7 +17,7 @@ def LengthOfIntersection(fracture_guid_list):
             else: continue       
     print length 
     
-def FractureIntensity(fracture_guid_list, domain_length, domain_width, domain_height):
+def FractureIntensity_P32(fracture_guid_list, domain_length, domain_width, domain_height):
     fractures_surface_area = 0
     domain_volume = domain_length * domain_width * domain_height
     for fracture in fracture_guid_list:
@@ -41,24 +41,29 @@ class CutPlane:
         self.plane = plane #plane should be in uppercase
         self.width = width
         self.height = height
+        self.GUID = None
+        self.intersecting_fractures = []
     
     def draw_plane(self, dist, axis_of_rotation, angle_of_rotation):
         ##axis of rotation is a list 
         if self.plane == 'XY':
             myplane = rs.WorldXYPlane()
             rec = rs.AddRectangle(myplane, self.width, self.height)
+            self.GUID = rec
             rs.MoveObject(rec, [0,0,dist]) #dist to move away from z-axis (origin)
             rs.RotateObject(rec, [self.height/2,self.width/2,dist], angle_of_rotation, axis_of_rotation)
             return rec
         if self.plane == 'YZ':
             myplane = rs.WorldYZPlane()
             rec = rs.AddRectangle(myplane, self.width, self.height)
+            self.GUID = rec
             rs.MoveObject(rec, [dist, 0, 0]) #dist to move away from x-axis (origin)
             rs.RotateObject(rec, [dist,dist,self.height/2], angle_of_rotation, axis_of_rotation)
             return rec
         if self.plane == 'ZX':
             myplane = rs.WorldZXPlane()
             rec = rs.AddRectangle(myplane, self.width, self.height)
+            self.GUID = rec
             rs.MoveObject(rec, [0, dist, 0]) #dist to move away from y-axis (origin)
             rs.RotateObject(rec, [dist,dist,self.height/2], angle_of_rotation, axis_of_rotation)
             return rec
@@ -76,12 +81,18 @@ class CutPlane:
                 for x in intersection:
                     #check it's a line!
                     if rs.IsLine(intersection[0]):
+                        self.intersecting_fractures.append(intersection[0])
                         length += rs.CurveLength(intersection[0])    
         rs.DeleteObject(plane_surf)
         return length 
+    
+    def number_of_intersecting_fractures(self):
+        return len(self.intersecting_fractures)
         
+    def FractureIntensity_P21(self, length_of_fractures):
+        return length_of_fractures/(self.width * self.height)
  
-m = CutPlane('ZX', 20, 20.0)
-plane = m.draw_plane(10,[0,1,0], 0)
+#m = CutPlane('ZX', 20, 20.0)
+#plane = m.draw_plane(10,[0,1,0], 0)
 #print(plane)
 #print(rs.ObjectType(plane))
