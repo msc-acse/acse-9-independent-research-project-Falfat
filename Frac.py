@@ -26,11 +26,12 @@ class Fracture():
                     
 def old_fracture_guids(fracture_list):
     #initialize a list to store the GUIDs
-    list = []
-    #go through the fracture list containing instances of fracture class
-    for i in range(len(fracture_list)):
-        #store the GUID in each instance
-        list.append(fracture_list[i].fracture_GUID)
+#    list = []
+#    #go through the fracture list containing instances of fracture class
+#    for i in range(len(fracture_list)):
+#        #store the GUID in each instance
+#        list.append(fracture_list[i].fracture_GUID)
+    list = [fracture_list[i].fracture_GUID for i in range(len(fracture_list))]
     return list
     
     
