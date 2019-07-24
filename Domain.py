@@ -20,6 +20,12 @@ class Domain:
         self.center = [length/2,length/2,length/2]
         self.fractures = []
         self.my_fractures = []
+        self.boundary_1 = []
+        self.boundary_2 = []
+        self.boundary_3 = []
+        self.boundary_4 = []  
+        self.boundary_5 = []
+        self.boundary_6 = []
         
     def show(self):
         corners = ([(0,0,0),(self.length,0,0),(self.length,self.length,0),(0,self.length,0),(0,0,self.length),(self.length,0,self.length),(self.length,self.length,self.length),(0,self.length,self.length)])
@@ -74,11 +80,17 @@ class Domain:
         #Make surfaces which are the boundaries
         bsurfs = []
         bsurfs.append(rs.AddSrfPt([bps[0],bps[1],bps[2],bps[3]])) #s0
+        self.boundary_1.append(rs.AddSrfPt([bps[0],bps[1],bps[2],bps[3]]))
         bsurfs.append(rs.AddSrfPt([bps[4],bps[5],bps[6],bps[7]])) #s1
+        self.boundary_2.append(rs.AddSrfPt([bps[4],bps[5],bps[6],bps[7]]))
         bsurfs.append(rs.AddSrfPt([bps[0],bps[1],bps[4],bps[7]])) #s2
+        self.boundary_3.append(rs.AddSrfPt([bps[0],bps[1],bps[4],bps[7]]))
         bsurfs.append(rs.AddSrfPt([bps[1],bps[2],bps[5],bps[4]])) #s3
+        self.boundary_4.append(rs.AddSrfPt([bps[1],bps[2],bps[5],bps[4]]))
         bsurfs.append(rs.AddSrfPt([bps[2],bps[3],bps[6],bps[5]])) #s4
+        self.boundary_5.append(rs.AddSrfPt([bps[2],bps[3],bps[6],bps[5]]))
         bsurfs.append(rs.AddSrfPt([bps[3],bps[0],bps[7],bps[6]])) #s5
+        self.boundary_6.append(rs.AddSrfPt([bps[3],bps[0],bps[7],bps[6]]))
         
         #Remove points as they are not needed
         rs.DeleteObjects(bps)
@@ -253,8 +265,60 @@ class Domain:
         
         return
 
-
-
+    def Percolate(self, initial_guid, target_guid, domain_fractures):
+        #check if any fracture intersect initial guid
+        intersection_list = []
+        
+        for frac in domain_fractures:
+            #does frac intersect with initial guid
+            intersection = rs.IntersectBreps(frac,initial_guid)
+            if intersection is not None:
+                #append fracture in intersection list
+                intersection_list.append(frac)
+        #if the list is empty, which means no fracture intersects with the
+        #initial GUID, return False
+        if not intersection_list:
+            #no percolation
+            return False
+        #Now we have appended all fractures that intersected the initial GUID, let's check for percolation
+        finish = 0
+        while (finish != 1):
+            num_frac = len(intersection_list)
+            #check if any of the fractures intersect the traget guid, in case we have a very large fracture that does so
+            for frac in intersection_list:
+                #does frac intersect with target guid
+                intersection = rs.IntersectBreps(frac,target_guid)
+                #if any fracture does intersect
+                if intersection is not None:
+                    #end while loop
+                    return True
+                    
+                    #finish = True
+                    #return True
+                    
+                    
+            #check intersection between list of fractures and other fractures in the domain
+            for dom_frac in domain_fractures:
+                for frac in intersection_list: 
+                    if dom_frac not in intersection_list:
+                        #check if it intersects any of our fractures
+                        intersection = rs.IntersectBreps(frac,dom_frac)
+                        if intersection is not None:
+                            #append fracture in intersection list
+                            intersection_list.append(dom_frac)
+                        
+            #delete all previous fractures
+            del intersection_list[:num_frac]
+            #if list is empty, which means no more connections
+            if not intersection_list:
+                #end while loop
+                return False
+                
+                #finish = True
+                
+                #no percolation
+                
+                
 
 
 
@@ -264,6 +328,7 @@ if __name__ == "__main__":
     print(Domain.number_of_fractures)
     ids = dom.show()
     print(dom.type)
-    print(dom.volume)
-    print(dom.center)
-    print(ids)
+    #print(dom.volume)
+    #print(dom.center)
+    #print(ids)
+    print(dom.boundary_1)
