@@ -1,10 +1,16 @@
 import rhinoscriptsyntax as rs
+from imp import reload #to reload modules
 import math
 import random
 import input
 import sec
-from Domain import Domain 
+import Frac
+import Domain
+#from Domain import Domain 
+import DFN_Analysis
 from Frac import Fracture
+from DFN_Analysis import CutPlane
+
 
 #import rhinoscriptsyntax as rs
 #import math
@@ -29,33 +35,51 @@ def generate_point(boxlength):
         return [x,y,z]
     
 def fracture_size(size_dist,radius_min, radius_max):
-    if size_dist == 'uniform':
-        radius = random.uniform(radius_min, radius_max)
+    try:
+        if radius_min <= 0 or radius_max <= 0:
+            raise ValueError
+    except ValueError:
+        print("The minimum and maximum radius should be greater than 0")
+    else:
+        if size_dist == 'uniform':
+            radius = random.uniform(radius_min, radius_max)
+            
+        return radius
         
-    return radius
-    
 def poly_orientation(min_angle,max_angle):
-    return random.randint(min_angle,max_angle)
+    try:
+        if min_angle < 0 or max_angle <= 0:
+            raise ValueError
+    except ValueError:
+        print("The input values are not appropriate")
+    else:
+        return random.randint(min_angle,max_angle)
     
 def InclinePlane(origin):
     """
     A function to get a plane for a circle, using its origin
     """
-    if orientation_dist == 'uniform':
-    #initialise a list called norm
-        norm = []
-        #define a random vector
-        vector = [random.uniform(2,18),random.uniform(2,18),random.uniform(2,18)]
-        #a loop to store the difference between the origin and vector
-        for i in range(3):
-            norm.append(vector[i] - origin[i])
-        #store the norm as normal
-        #normal = norm
-        #unitize the 3d vector
-        normal = rs.VectorUnitize(norm)
-        #convert the origin to a plane
-        plane = rs.PlaneFromNormal(origin, normal)
-        return plane
+    try:
+        if (type(origin) != list):
+            raise TypeError
+    except TypeError:
+        print("The argument 'origin' should be a type list")
+    else:
+        if orientation_dist == 'uniform':
+        #initialise a list called norm
+            norm = []
+            #define a random vector
+            vector = [random.uniform(2,18),random.uniform(2,18),random.uniform(2,18)]
+            #a loop to store the difference between the origin and vector
+            for i in range(3):
+                norm.append(vector[i] - origin[i])
+            #store the norm as normal
+            #normal = norm
+            #unitize the 3d vector
+            normal = rs.VectorUnitize(norm)
+            #convert the origin to a plane
+            plane = rs.PlaneFromNormal(origin, normal)
+            return plane
         
 def FixedFractureGen(aspect_ratio=None,min_angle=None,max_angle=None,sides=None):
     """
@@ -86,6 +110,8 @@ def FixedFractureGen(aspect_ratio=None,min_angle=None,max_angle=None,sides=None)
             my_circle = rs.AddCircle(plane,radius)
             #circle_list.append(my_circle)
             surf = rs.AddPlanarSrf(my_circle)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(my_circle)
             #save fracture's GUID
             frac.fracture_GUID = surf[0]
             #append fracture into fracture list
@@ -115,6 +141,8 @@ def FixedFractureGen(aspect_ratio=None,min_angle=None,max_angle=None,sides=None)
             fracture = rs.AddEllipse(plane,radius, ry)
             #make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(fracture)
             #append surface GUID to list of fracture surfaces
             frac.fracture_GUID = frac_surf[0]
             fracture_list.append(frac)
@@ -159,6 +187,8 @@ def FixedFractureGen(aspect_ratio=None,min_angle=None,max_angle=None,sides=None)
             fracture = rs.RotateObject(polygon,origin,angle,[0,1,0])
             #make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(fracture)
             frac.fracture_GUID = frac_surf[0]
             fracture_list.append(frac)
             
@@ -195,6 +225,8 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,aspect_min=None
             #append the circle GUID to the list
             #circle_list.append(my_circle)
             surf = rs.AddPlanarSrf(my_circle)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(my_circle)
             #surface_list.append(surf[0])
             frac.fracture_GUID = surf[0]
             fracture_list.append(frac)
@@ -229,6 +261,8 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,aspect_min=None
             fracture = rs.AddEllipse(plane,radius, ry)
             #make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(fracture)
             #append surface GUID to list of fracture surfaces
             frac.fracture_GUID = frac_surf[0]
             fracture_list.append(frac) 
@@ -281,17 +315,13 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,aspect_min=None
             fracture = rs.RotateObject(polygon,origin,angle,[0,1,0])
             #make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
+            #delete initial fracture drawn which is a curve
+            rs.DeleteObject(fracture)
             frac.fracture_GUID = frac_surf[0]
             fracture_list.append(frac)
         
             
     return fracture_list 
- 
-def fracture_guids(fracture_list):
-    list = []
-    for i in range(len(fracture_list)):
-        list.append(fracture_list[i].fracture_GUID)
-    return list
     
 def SeparatedFractureGen(threshold=None, aspect_ratio=None, min_angle=None, max_angle=None, sides=None):
     if fracture_shape == 'circle':
@@ -364,28 +394,59 @@ def SeparatedFractureGen(threshold=None, aspect_ratio=None, min_angle=None, max_
                 k+=1
             
     return fracture_list    
-    
+ 
+
 if __name__ == "__main__":   
-    rs.EnableRedraw(False) #Avoid drawing whilst computing 
-    dom = Domain(boxlength)
+    rs.EnableRedraw(False) #Avoid drawing whilst computing
+    #reload(Frac)
+    #reload(Domain)
+    #reload(DFN_Analysis)
+    #reload(Frac)
+    #reload(Domain)
+    dom = Domain.Domain(boxlength)
     dom.show()
     #frac_list = FixedFractureGen(min_angle=5,max_angle =300, sides =5)
-    frac_list = RandomFractureGen(20, 30, 1, 3,1,4, 4, 7)
+    frac_list = RandomFractureGen(20, 40, 1, 3,1,4, 4, 7)
     #print(Domain.fractures)
     #print(type(frac_list))
     #frac_list = SeparatedFractureGen()
-    frac_guids = fracture_guids(frac_list)
-    print('len is :', len(frac_guids))
+    frac_guids = Frac.old_fracture_guids(frac_list)
+    #print('len is :', len(frac_guids))
     for frac in frac_guids:
         dom.add_fracture(frac)
     print(dom.fractures)
-    print(dom.number_of_fractures())
+    #print(dom.number_of_fractures())
     #print('box length is', dom.length)
     dom.RemoveSurfacesOutsideOfBox(dom.length)
-    print(dom.my_fractures)
+    dom_frac = dom.my_fractures
+    print(dom_frac)
+    new_frac_guids = Frac.new_fracture_guids(dom_frac,frac_list)
+    ##print(new_frac_guids)
+    ##print(rs.ObjectType(frac_list[1].fracture_GUID))
     #sec.LengthOfIntersection(frac_guids)
     #dom.number_of_fractures(frac_list)
     #print(num)
     #print(frac_list[0].fracture_name)
     
     #frac_list[0].intersect(frac_list[7])
+    
+##cut plan analysis    
+    m = CutPlane('YZ', 20, 20.0)
+    plane = m.draw_plane(10,[0,1,0], 30)
+    k = m.length_of_fractures(new_frac_guids, plane)
+    print("cut plane length is:", k)
+    inter_frac = m.intersecting_fractures
+    #print(m.GUID)
+    lines = m.Plane_lines(m.GUID)
+    mat = m.PercolationMatrix(lines,inter_frac)
+    print(mat)
+    #a = m.number_of_intersecting_fractures()
+    #print(a)
+    #b = m.FractureIntensity_P21(k)
+    #print("P21 is:", b)
+    #boundary_list = dom.CreateBoundary(20)
+
+
+##3D percolation Analysis
+    #k = dom.PercolationMatrix(boundary_list,new_frac_guids)
+    #print(k)
