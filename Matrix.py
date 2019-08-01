@@ -33,7 +33,7 @@ class Matrix:
             #write in the row
             file.write(str(l))
         #write closing bracket for the matrix
-        file.write("])
+        file.write("]")
         file.close()
         
     def ConvertObjectToIndex(self, object_type, object_guid, boundary_list, domain_fractures):
