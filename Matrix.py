@@ -13,14 +13,27 @@ class Matrix:
             print(l)
             
     def MatrixToFile(self):
+        #open text file
         file = open("intersection_matrix.txt", 'w')
+        #write opening square bracket for matrix
+        file.write("[")
+        #use for loop to write in the matrix
         for i in range(self.rows):
+            #square brackets to append in elements of a row of the matrix
             l = []
+            if i != 0:
+                #separate each row with a comma 
+                file.write(",")
             for j in range(self.cols):
+                #append elements of the row
                 l.append(self.matrix[i][j])
+            #avoid having space as the first row in the text file
             if i != 0:
                 file.write("\n")
+            #write in the row
             file.write(str(l))
+        #write closing bracket for the matrix
+        file.write("])
         file.close()
         
     def ConvertObjectToIndex(self, object_type, object_guid, boundary_list, domain_fractures):
