@@ -18,7 +18,8 @@ class Matrix:
             l = []
             for j in range(self.cols):
                 l.append(self.matrix[i][j])
-            file.write("\n")
+            if i != 0:
+                file.write("\n")
             file.write(str(l))
         file.close()
         
