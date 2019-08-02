@@ -10,6 +10,8 @@ import Domain
 import DFN_Analysis
 from Frac import Fracture
 from DFN_Analysis import CutPlane
+from Matrix import Matrix
+import scriptcontext as sc
 
 
 #import rhinoscriptsyntax as rs
@@ -24,7 +26,7 @@ name = "DataFile.txt"
 radius, boxlength, n, orientation_dist, location_dist, fracture_shape = input.ReadFile(name)
 #radius, boxlength, n, orientation_dist, location_dist, fracture_shape = input.ReadFile(name)
 size_dist = 'uniform'
-min_angle,max_angle = 0,3360
+min_angle,max_angle = 0,360
 
 
 def generate_point(boxlength):
@@ -396,7 +398,8 @@ def SeparatedFractureGen(threshold=None, aspect_ratio=None, min_angle=None, max_
     return fracture_list    
  
 
-if __name__ == "__main__":   
+if __name__ == "__main__":  
+    sc.doc.Objects.Clear() 
     rs.EnableRedraw(False) #Avoid drawing whilst computing
     #reload(Frac)
     #reload(Domain)
@@ -406,7 +409,7 @@ if __name__ == "__main__":
     dom = Domain.Domain(boxlength)
     dom.show()
     #frac_list = FixedFractureGen(min_angle=5,max_angle =300, sides =5)
-    frac_list = RandomFractureGen(20, 40, 1, 3,1,4, 4, 7)
+    frac_list = RandomFractureGen(60, 80, 1, 3,1,4, 4, 7)
     #print(Domain.fractures)
     #print(type(frac_list))
     #frac_list = SeparatedFractureGen()
@@ -430,7 +433,7 @@ if __name__ == "__main__":
     
     #frac_list[0].intersect(frac_list[7])
     
-##cut plan analysis    
+##cut plane analysis    
     m = CutPlane('YZ', 20, 20.0)
     plane = m.draw_plane(10,[0,1,0], 30)
     k = m.length_of_fractures(new_frac_guids, plane)
@@ -444,9 +447,17 @@ if __name__ == "__main__":
     #print(a)
     #b = m.FractureIntensity_P21(k)
     #print("P21 is:", b)
-    #boundary_list = dom.CreateBoundary(20)
+    boundary_list = dom.CreateBoundary(20)
 
 
 ##3D percolation Analysis
     #k = dom.PercolationMatrix(boundary_list,new_frac_guids)
     #print(k)
+    #per = dom.Percolate(boundary_list[0],boundary_list[1],boundary_list,k,new_frac_guids)
+    #print(per)
+    
+    
+    
+    #m = Matrix(k)
+    #m.PrintMatrix()
+    #m.MatrixToFile()
