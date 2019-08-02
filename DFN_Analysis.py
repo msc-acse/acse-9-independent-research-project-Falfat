@@ -5,7 +5,7 @@ class IntersectionAnalysis:
     no_of_fracture_intersections = 0 #should be run after lengthofinter
     lengths_of_intersection_lines = [] #plot histogram with this
     
-    def LengthOfIntersection(fracture_guid_list):
+    def LengthOfIntersection(self, fracture_guid_list):
         length = 0
         for i in range(len(fracture_guid_list)):
             curveA = fracture_guid_list[i]
@@ -20,12 +20,12 @@ class IntersectionAnalysis:
                             if rs.IsLine(intersection[0]):
                                 #increase no of fracture intersections
                                 self.no_of_fracture_intersections += 1
-                                self.lengths_of_intersection_lines.append(intersection[0])
+                                self.lengths_of_intersection_lines.append(rs.CurveLength(intersection[0]))
                                 length += rs.CurveLength(intersection[0])
                 else: continue       
         print length 
         
-    def FractureIntensity_P32(fracture_guid_list, domain_length, domain_width, domain_height):
+    def FractureIntensity_P32(self, racture_guid_list, domain_length, domain_width, domain_height):
         fractures_surface_area = 0
         domain_volume = domain_length * domain_width * domain_height
         for fracture in fracture_guid_list:
@@ -34,7 +34,7 @@ class IntersectionAnalysis:
             
         return fractures_surface_area/domain_volume
      
-    def Intersections_per_unit_area(fracture_guid_list, domain_length, domain_width, domain_height):
+    def Intersections_per_unit_area(self, fracture_guid_list, domain_length, domain_width, domain_height):
         domain_surface_area = 2((domain_length * domain_width) + (domain_length * domain_height) + (domain_width * domain_height))
         return LengthOfIntersection(fracture_guid_list)/domain_surface_area
 
