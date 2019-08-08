@@ -45,7 +45,8 @@ def fracture_size(size_dist,radius_min, radius_max):
     else:
         if size_dist == 'uniform':
             radius = random.uniform(radius_min, radius_max)
-            
+        if size_dist == 'exponential':
+            radius = random.ex   
         return radius
         
 def poly_orientation(min_angle,max_angle):
@@ -441,7 +442,7 @@ if __name__ == "__main__":
     inter_frac = m.intersecting_fractures
     #print(m.GUID)
     lines = m.Plane_lines(m.GUID)
-    mat = m.PercolationMatrix(lines,inter_frac)
+    mat = m.IntersectionMatrix(lines,inter_frac)
     print(mat)
     #a = m.number_of_intersecting_fractures()
     #print(a)
@@ -451,7 +452,7 @@ if __name__ == "__main__":
 
 
 ##3D percolation Analysis
-    #k = dom.PercolationMatrix(boundary_list,new_frac_guids)
+    #k = dom.IntersectionMatrix(boundary_list,new_frac_guids)
     #print(k)
     #per = dom.Percolate(boundary_list[0],boundary_list[1],boundary_list,k,new_frac_guids)
     #print(per)
