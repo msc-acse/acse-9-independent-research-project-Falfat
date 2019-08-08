@@ -24,14 +24,27 @@ class IntersectionAnalysis:
                                 length += rs.CurveLength(intersection[0])
                 else: continue       
         print length 
-        
-    def FractureIntensity_P32(self, racture_guid_list, domain_length, domain_width, domain_height):
+    
+    def FracturesSurfaceArea(self, fracture_guid_list):
+        # function to determine the surface area of all fractures in the domain
+        # initialise fracturs surface area
         fractures_surface_area = 0
-        domain_volume = domain_length * domain_width * domain_height
+        #loop to sum all areas of fractures
         for fracture in fracture_guid_list:
+            #get surface area of the fracture
             fracture_area = rs.SurfaceArea(fracture)
-            fractures_surface_area += fracture_area
-            
+            # increment the fractures surface area
+            fractures_surface_area += fracture_area[0]
+        return fractures_surface_area
+        
+    def FractureIntensity_P32(self, fracture_guid_list, domain_length, domain_width, domain_height):
+        #fractures_surface_area = 0
+        domain_volume = domain_length * domain_width * domain_height
+#        for fracture in fracture_guid_list:
+#            fracture_area = rs.SurfaceArea(fracture)
+#            fractures_surface_area += fracture_area
+        # determine fractures surface area
+        fractures_surface_area = self.FracturesSurfaceArea(fracture_guid_list)    
         return fractures_surface_area/domain_volume
      
     def Intersections_per_unit_area(self, fracture_guid_list, domain_length, domain_width, domain_height):
@@ -110,7 +123,7 @@ class CutPlane:
         ##returns a list of the four lines forming the plane
         return rs.ExplodeCurves(plane_guid)
         
-    def PercolationMatrix(self, boundary_list, intersected_fractures):
+    def IntersectionMatrix(self, boundary_list, intersected_fractures):
         #initialize Matrix
         mat = []
         #number of fractures
