@@ -155,8 +155,33 @@ class CutPlane:
         
         return mat
 
-#m = CutPlane('ZX', 20, 20.0)
-#plane = m.draw_plane(10,[0,1,0], 0)
+def Intersections_per_fracture(intersection_matrix):
+    ## function to save the number of intersections per fracture in a file
+    # change directory, so as to save text file in the designated folder
+    os.chdir("/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files")
+    # open text file to store all lengths of intersection for post processing 
+    file = open("intersections_per_fracture.txt", 'w')
+    # go through each row of the matrix
+    for i in range(len(intersection_matrix)):
+        #cinitialise number of intersection to be 0
+        n = 0
+        # go through all the columns of each row
+        # avoid the last six elements, since they are boundary intersections
+        for j in range(len(intersection_matrix[i][:-6])):
+            #if the element is not 0, i.e it's an intersection
+            if intersection_matrix[i][j] != 0:
+                # increment the number of intersection
+                n+=1
+        # avoid space before the first integer
+        # write to file
+        if i != 0:
+            file.write(" " + str(n))
+        else:
+            file.write(str(n))
+    # close file
+    file.close()
+    return  None
+            
 
 
 #print(plane)
