@@ -285,7 +285,7 @@ class Domain:
         
         
         
-    def PercolationMatrix(self, boundary_list, domain_fractures):
+    def IntersectionMatrix(self, boundary_list, domain_fractures):
         try:
             if type(boundary_list) != list or type(domain_fractures) != list:
                 raise TypeError
