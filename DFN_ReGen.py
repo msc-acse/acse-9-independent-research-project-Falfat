@@ -2,25 +2,11 @@ import random
 import rhinoscriptsyntax as rs
 import DFN_Gen
 import Domain
+import Frac
 
 rs.EnableRedraw(False)
-#for i in range(10):
-#    n = 0
-#    while n < 3:
-#        n = random.expovariate(1)
-#    print(n)
-#    random.v
-#p = rs.PlaneFromFrame([8.22706452012232,4.86210982191343,15.7481593454759],[0,-0.89561202478873,-0.444836038393734],[-0.999993186572195,0.00164209036055086,-0.00330610774704653])
-#rs.AddCircle(p,2)
-#origin = DFN_Gen.generate_point(20)
-###print(origin)
-#plane = DFN_Gen.InclinePlane(origin)
-#print(plane[2])
-#print(plane)
-#rs.AddCircle(plane,2)
-##rs.AddCircle(Origin=15.19079610618,16.4300124095962,13.0989943098184 XAxis=0,-0.751176879251003,0.660100974153746, YAxis=-0.98169909038405,-0.125708767021637,-0.14305314338744, ZAxis=0.190438693387473,-0.648020525888358,-0.737429659078239, 10)
 path = "C:/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files/fracture_data.txt"
-def Redraw_Network(path):
+def RedrawNetwork(path):
     # open text file
     m = open(path,'r')
     # read first line of text file; length of the domain
@@ -34,7 +20,7 @@ def Redraw_Network(path):
     # create the domain
     dom = Domain.Domain(length)
     # display the domain
-    dom.show()
+    dom.Show()
     if shape[0] != 'polygon':
         # a list to store GUIDs of regenerated fractures
         frac_list = [] 
@@ -110,6 +96,10 @@ def Redraw_Network(path):
             # delete all old fractures
             for frac in frac_list:
                 rs.DeleteObject(frac)
+            dom_frac = dom.my_fractures #get the fractures in the domain
+            #print(dom_frac)
+            #swap old guids with new ones and put new guids in old frac layers
+            #new_frac_guids = Frac.NewFracturesGuids(dom_frac,frac_list) 
         
         # display fractures if they are ellipse        
         if shape[0] == 'ellipse':
@@ -156,6 +146,7 @@ def Redraw_Network(path):
             # delete old fractures
             for frac in frac_list:
                 rs.DeleteObject(frac)
+            dom_frac = dom.my_fractures 
     
     if shape[0] == 'polygon':
         # list to store origin
@@ -233,8 +224,9 @@ def Redraw_Network(path):
         # delete all old fractures
         for fr in frac_list:
             rs.DeleteObject(fr)
-    return None
+        dom_frac = dom.my_fractures 
+    return dom_frac 
     
 if __name__ == "__main__":  
     rs.EnableRedraw(False)
-    Redraw_Network(path)
+    RedrawNetwork(path)
