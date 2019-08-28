@@ -174,7 +174,7 @@ class Domain:
         """
         surfs = []  # Will add found surfaces here
 
-        # Don't try ig the layer does not exist
+        # Don't try if the layer does not exist
         if rs.IsLayer(layer_name):
             # Get all identifiers for objects in the layer
             allobs = rs.ObjectsByLayer(layer_name)
@@ -187,7 +187,10 @@ class Domain:
         """
         converts polysurfaces to surface and returns False and surface
         if the argument is a polysurface. Returns True and the argument
-        type if it is not a polysurface.
+        type if it is not a polysurface. Polysurfaces are made by SplitBrep
+        We can't use normal functions on them. So, we have to turn them
+        into seperate surfaces with ExplodePolysurfaces. SplitBrep function is
+        used in RemoveSurfacesOutsideOfBox().
         An auxilliary method to trim extruding fractures.
 
         Parameters
@@ -223,7 +226,7 @@ class Domain:
 
         return [True, non_poly_surfaces]
 
-    def CreateSetOfExtendedBoundaries(self, boundaries):
+    def CreateSetOfExtendedBoundaries(self, boundaries, b_length):
         """
         creates some extened boundaries to check for out of bounds fractures.
         Returns the extended boundaries
@@ -239,14 +242,12 @@ class Domain:
         # current boundaries. This is not perfect as it cannot guarantee
         # to get all the surfaces And requires many more intersection test
         extended_boundary_surfaces = []
-        # The boundaries are created by scaling up the other boundaries,
-        # Using 0,0,0 as a reference point. Can make multiple 
-        # different boundaries if desired
+        # The boundaries are created by scaling up the other boundaries
         distances = [1.001, 1.01, 1.1]
-
+        origin = [b_length/2,b_length/2,b_length/2]
         for dist in distances:
             for boundary in boundaries:
-                extended_boundary_surfaces.append(rs.ScaleObject(boundary, [10, 10, 10],[dist, dist, dist], True))
+                extended_boundary_surfaces.append(rs.ScaleObject(boundary, origin,[dist, dist, dist], True))
 
         return extended_boundary_surfaces
      
@@ -288,6 +289,11 @@ class Domain:
         --------
         b_length: float
             length of domain/boundary
+            
+        Raises
+        ------
+        ValueError
+            if boundary length is less than zero.
         """
         try:
             if b_length <= 0:
@@ -297,23 +303,20 @@ class Domain:
         else:
             # Create boundary surfaces
             boundaries = self.CreateBoundary(b_length)
-          
             # Get all layers in the document
             all_layers = rs.LayerNames()
-            
-            # Make a layer of intersections
             # To avoid error messages about deleting current layers:
+            # make a blank layer
             rs.AddLayer('Blank Layer')
             rs.CurrentLayer('Blank Layer')
-            
+            # Make a layer for intersecting fractures
             boundary_intersection_layer = "Boundary_Intersections"
             if rs.IsLayer(boundary_intersection_layer):
-                rs.PurgeLayer(boundary_intersection_layer) #Deletes layer
-            
+                rs.PurgeLayer(boundary_intersection_layer)  # Deletes layer
+            # make boundary_intersection_layer the current layer
             rs.AddLayer(boundary_intersection_layer)
             rs.CurrentLayer(boundary_intersection_layer)
             rs.LayerColor(boundary_intersection_layer, [200, 0, 0])
-            
             # Make a polysurface of all the boundaries
             # This polysurf can be used with SplitBrep
             # If you compare surfaces individually, then fractures which
@@ -345,66 +348,69 @@ class Domain:
                 new_polysurfs = rs.SplitBrep(surf, box)
                 if type(new_polysurfs) == list:
                     boundaries_touched += 1
-                    for polysurf in new_polysurfs:  
+                    for polysurf in new_polysurfs:
                         # Because sometimes there are multiple surfaces
                         new_surfs = self.ConvertPolysurfaceToSurface(polysurf)
                         for new_surfs_i in new_surfs[1]:
                             all_new_surfaces.append(new_surfs_i)
                             # append to domain fracture list
-                            self.my_fractures.append(new_surfs_i)  
+                            self.my_fractures.append(new_surfs_i)
                 if boundaries_touched == 0:
                     # This means the fracture didn't intersect a boundary
-                    # Add it to the list as well, so the final layer 
+                    # Add it to the list as well, so the final layer
                     # has all the fracs
                     copied_surf = rs.CopyObject(surf)
                     rs.ObjectLayer(copied_surf, boundary_intersection_layer)
                     # ARE WE APPENDING THE FRAC OUTSIDE OR INSIDE
-                    all_new_surfaces.append(copied_surf) 
+                    all_new_surfaces.append(copied_surf)
                     # append to domain fracture list
-                    self.my_fractures.append(copied_surf)  
+                    self.my_fractures.append(copied_surf)
             # print "Number of surfaces after splitting: ",
             # len(all_new_surfaces)
             # Make extended boundary surfaces to check
-            ext_boundaries = self.CreateSetOfExtendedBoundaries(boundaries)
-            
+            ext_boundaries = self.CreateSetOfExtendedBoundaries(boundaries, b_length)
             # Now, remove any surfaces which aren't inside the volume
             for surf in all_new_surfaces:
                 self.RemoveSurfacesIfAnyIntersectBoundary(surf, ext_boundaries)
-            
             # We don't need the extra boundaries anymore
             for boundary in ext_boundaries:
                 rs.DeleteObject(boundary)
             for boundary in boundaries:
                 rs.DeleteObject(boundary)
-            rs.DeleteObject(box)     
+            rs.DeleteObject(box)
             return
 
     def IntersectionMatrix(self, boundary_list, domain_fractures):
         """
         method to create a square intersection matrix for fracture-fracture
         and fracture-boundary intersections. Returns the matrix.
-        
+
         Parameters
         ----------
         boundary_list: list
             list of boundary guids
         domain_fractures: list
             list of fractures guids contained in the domain
+
+        Raises
+        -----
+        TypeError
+            if the arguments are not of type list
         """
         try:
             if type(boundary_list) != list or type(domain_fractures) != list:
                 raise TypeError
         except TypeError:
-            print("The two arguments should be type list")
-        else: 
-            # initialize Matrix
+            print("The two arguments should be of type list")
+        else:
+            # initialise a Matrix
             mat = []
             # number of fractures
             num_frac = len(domain_fractures)
-            # number of rows and cols for matrix 
+            # number of rows and cols for matrix
             n_row = num_frac + 6
             n_col = num_frac + 6
-            # initialize matrix
+            # append to matrix
             for i in range(n_row):
                 mat.append([])
                 for j in range(n_col):
@@ -417,10 +423,15 @@ class Domain:
                     if i != j:
                         intersection = rs.IntersectBreps(domain_fractures[i],domain_fractures[j])
                         if intersection is not None:
-                            mat[i][j] = rs.CurveLength(intersection[0]) 
+                            # set the matrix elements to be
+                            # length of intersection
+                            # since it is a symmetric matrix
+                            # mat[i][j] == mat[j][i]
+                            mat[i][j] = rs.CurveLength(intersection[0])
+                            mat[j][i] = rs.CurveLength(intersection[0])
             # boundary-fractures
-            for i in range(num_frac): # 0 to number of fractures - 1
-                 # number of fractures to end of row/col
+            for i in range(num_frac):  # 0 to number of fractures - 1
+                # number of fractures to end of row/col
                 for j in range(num_frac, n_col):
                     intersection = rs.IntersectBreps(domain_fractures[i], boundary_list[j-num_frac])
                     if intersection is not None:
