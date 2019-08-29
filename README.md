@@ -54,9 +54,10 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 
 - The `percolation_analysis` and `analysis_script` folders some contain DFN analysis done with Y-Frac. Each of the file is well commented to describe the analysis contained in it.
 
+- The `text_files` folder contain is where the output file named `fracture_data` is written. It also contains some text files used for analysis to demonstrated Y-Frac's functionalities. Again, it is prefered this folder be copied into `Y-Frac` folder for easy accessibility.
 
 # Documentation
 - Below is the architecture of Y-Frac's library
 
-![Y-Frac](./images/frac.PNG)
+![Y-Frac](./images/frac1.PNG)
 
