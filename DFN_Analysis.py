@@ -1,3 +1,4 @@
+# Falola Yusuf. GitHub: Falfat
 import rhinoscriptsyntax as rs
 
 
@@ -147,10 +148,9 @@ class IntersectionAnalysis:
             if domain_length <= 0 or domain_width <= 0 or domain_height <= 0:
                 raise ValueError
         except ValueError:
-            print("Intersections_per_unit_area(): The domain length, width\
-                  and height should be greater than zero")
+            print("Intersections_per_unit_area(), The domain length, width and height should be greater than zero")
         else:
-            domain_surface_area = 2((domain_length * domain_width) + (domain_length * domain_height) + (domain_width * domain_height))
+            domain_surface_area = 2*((domain_length * domain_width) + (domain_length * domain_height) + (domain_width * domain_height))
             return self.LengthOfIntersection(fracture_guid_list)/domain_surface_area
 
 
@@ -361,7 +361,7 @@ class CutPlane:
             if type(boundary_list) != list or type(intersected_fractures) != list:
                 raise TypeError
         except TypeError:
-                print("IntersectionMatrix(): The two arguments should\
+            print("IntersectionMatrix(): The two arguments should\
                   be of type list")
         else:
             # initialize Matrix
@@ -384,7 +384,11 @@ class CutPlane:
                     if i != j:
                         intersection = rs.CurveCurveIntersection(intersected_fractures[i],intersected_fractures[j])
                         if intersection is not None:
+                            # set the matrix elements to be 1
+                            # since it is a symmetric matrix
+                            # mat[i][j] == mat[j][i]
                             mat[i][j] = 1
+                            mat[j][i] = 1
             # boundary-fractures
             for i in range(num_frac):  # 0 to number of fractures - 1
                 # number of fractures to end of row/col
@@ -398,114 +402,113 @@ class CutPlane:
             # return the matrix
             return mat
 
-
-def Percolate(self, initial_guid, target_guid, boundary_list, intersection_matrix, domain_fractures):
-    """
-    function to determine percolation state of the cut-palne (2D)
-    
-    Parameters
-    ----------
-    initial_guid: guid
-        guid of the first boundary
-    target_guid: guid
-        guid of the second boundary
-    intersection_matrix: matrix
-        intersection matrix
-    domain_fractures: list
-        list of fractures intersecting the plane
+    def Percolate(self, initial_guid, target_guid, boundary_list, intersection_matrix, domain_fractures):
+        """
+        function to determine percolation state of the cut-palne (2D)
         
-    Raises
-    ------
-    TypeError
-        if  arguments 'boundary_list' and 'domain_fractures' are not lists
-    """
-    try:
-        if type(boundary_list) != list or type(domain_fractures) != list:
-                raise TypeError
-    except TypeError:
-            print("Percolate(): arguments 'boundary_list' and 'domain_\
-                  fractures' must be of type list")
-    else:
-        # object list
-        obj_list = domain_fractures + boundary_list
-        # list of other boundary guids other than the target ones.
-        # This is necessary because of a case whereby, we are testing
-        # percolation between boundaries A and B and a fracture inersects
-        # boundaries A & C, another fracture intersects boundaries B & C
-        # The function will return percolation as True, which is not
-        # so we need to avoid adding the boundries to the list of fractures
-        forbidden_list = [frac for frac in boundary_list if (frac != initial_guid and frac != target_guid)]
-        # get index of init_guid in the boundary list
-        p1 = [i for i in range(len(boundary_list)) if boundary_list[i] == initial_guid]
-        # row of init_guid in the matrix
-        # len(intersection_matrix[1]) = matrix row
-        # len(boundary_list)  = number of boundarues
-        # p1[0] = index of initial guid in the list
-        b1 = p1[0] + len(intersection_matrix[1]) - len(boundary_list)
-        # get index of target_guid in the boundary list
-        p2 = [i for i in range(len(boundary_list)) if boundary_list[i] == target_guid]
-        # row of init_guid in the matrix
-        b2 = p2[0] + len(intersection_matrix[1]) - len(boundary_list)
-        # check if all elements in the initial boundary row is zero
-        all_num_row_b1 = all(elem == 0 for elem in intersection_matrix[b1][:])
-        # check if all elements in the target boundary row is zero
-        all_num_row_b2 = all(elem == 0 for elem in intersection_matrix[b2][:])
-        # return false if either of the check above is True
-        # It meas no fracture intersect either of the two
-        # boundaries we want to check perfoclation for
-        if all_num_row_b1 or all_num_row_b2:
-            return False
-        # initialise a list to store fractures matrix index
-        # found along the path we are checking percolation
-        index_list = [b1]
-        # initialise a list to store fractures found along
-        # the path we are checking percolation
-        frac_list = [initial_guid]
-        # k moves through the list of column index
-        k = 0
-        # old_len stores the length after one complete phase.
-        # A phase here is when all the columns of fractures added have
-        # searched for intersection. For instance, the first pahse
-        # will be when all the columns of fractures added
-        # to the inital boundary have been searched
-        old_len = len(frac_list)
-        # This is updated after each phase, to track when
-        # a phase has been completed
-        it = 0
-        while True:
-            # iterate through the col of the matrix
-            for i in range(len(intersection_matrix[0])):
-                # if any col of the boundary/fracture row is > 0
-                # and the corresponding fracture is
-                # not in the fracture intersection and forbidden list
-                if (intersection_matrix[index_list[k]][i] > 0) and (obj_list[i] not in frac_list) and (obj_list[i] not in forbidden_list):
-                    # append the fracture/oboundary in the
-                    # fracture intersection list
-                    frac_list.append(obj_list[i])
-                    # append the index of the fracture added
-                    index_list.append(i)
-            # do for each phase
-            if it == k:
-                # track the number of fracture added
-                num_added = len(frac_list) - old_len
-                # if no fracture is added
-                if num_added == 0:
-                    # return False
-                    return False
-                # if fractures are added, increment "it" to track when
-                # the phase is complete
-                it += num_added
-                # increment old_len to know the number of fractures
-                # added after the phase
-                old_len += num_added
-            # if the target_guid(i.e second coundary) has been
-            # appended in the frac intersection list
-            # which indicates percolation
-            if target_guid in frac_list:
-                # return True
-                return True
-            # increment k
-            k += 1
+        Parameters
+        ----------
+        initial_guid: guid
+            guid of the first boundary
+        target_guid: guid
+            guid of the second boundary
+        intersection_matrix: matrix
+            intersection matrix
+        domain_fractures: list
+            list of fractures intersecting the plane
+            
+        Raises
+        ------
+        TypeError
+            if  arguments 'boundary_list' and 'domain_fractures' are not lists
+        """
+        try:
+            if type(boundary_list) != list or type(domain_fractures) != list:
+                    raise TypeError
+        except TypeError:
+                print("Percolate(): arguments 'boundary_list' and 'domain_\
+                      fractures' must be of type list")
+        else:
+            # object list
+            obj_list = domain_fractures + boundary_list
+            # list of other boundary guids other than the target ones.
+            # This is necessary because of a case whereby, we are testing
+            # percolation between boundaries A and B and a fracture inersects
+            # boundaries A & C, another fracture intersects boundaries B & C
+            # The function will return percolation as True, which is not
+            # so we need to avoid adding the boundries to the list of fractures
+            forbidden_list = [frac for frac in boundary_list if (frac != initial_guid and frac != target_guid)]
+            # get index of init_guid in the boundary list
+            p1 = [i for i in range(len(boundary_list)) if boundary_list[i] == initial_guid]
+            # row of init_guid in the matrix
+            # len(intersection_matrix[1]) = matrix row
+            # len(boundary_list)  = number of boundarues
+            # p1[0] = index of initial guid in the list
+            b1 = p1[0] + len(intersection_matrix[1]) - len(boundary_list)
+            # get index of target_guid in the boundary list
+            p2 = [i for i in range(len(boundary_list)) if boundary_list[i] == target_guid]
+            # row of init_guid in the matrix
+            b2 = p2[0] + len(intersection_matrix[1]) - len(boundary_list)
+            # check if all elements in the initial boundary row is zero
+            all_num_row_b1 = all(elem == 0 for elem in intersection_matrix[b1][:])
+            # check if all elements in the target boundary row is zero
+            all_num_row_b2 = all(elem == 0 for elem in intersection_matrix[b2][:])
+            # return false if either of the check above is True
+            # It meas no fracture intersect either of the two
+            # boundaries we want to check perfoclation for
+            if all_num_row_b1 or all_num_row_b2:
+                return False
+            # initialise a list to store fractures matrix index
+            # found along the path we are checking percolation
+            index_list = [b1]
+            # initialise a list to store fractures found along
+            # the path we are checking percolation
+            frac_list = [initial_guid]
+            # k moves through the list of column index
+            k = 0
+            # old_len stores the length after one complete phase.
+            # A phase here is when all the columns of fractures added have
+            # searched for intersection. For instance, the first pahse
+            # will be when all the columns of fractures added
+            # to the inital boundary have been searched
+            old_len = len(frac_list)
+            # This is updated after each phase, to track when
+            # a phase has been completed
+            it = 0
+            while True:
+                # iterate through the col of the matrix
+                for i in range(len(intersection_matrix[0])):
+                    # if any col of the boundary/fracture row is > 0
+                    # and the corresponding fracture is
+                    # not in the fracture intersection and forbidden list
+                    if (intersection_matrix[index_list[k]][i] > 0) and (obj_list[i] not in frac_list) and (obj_list[i] not in forbidden_list):
+                        # append the fracture/oboundary in the
+                        # fracture intersection list
+                        frac_list.append(obj_list[i])
+                        # append the index of the fracture added
+                        index_list.append(i)
+                # do for each phase
+                if it == k:
+                    # track the number of fracture added
+                    num_added = len(frac_list) - old_len
+                    # if no fracture is added
+                    if num_added == 0:
+                        # return False
+                        return False
+                    # if fractures are added, increment "it" to track when
+                    # the phase is complete
+                    it += num_added
+                    # increment old_len to know the number of fractures
+                    # added after the phase
+                    old_len += num_added
+                # if the target_guid(i.e second coundary) has been
+                # appended in the frac intersection list
+                # which indicates percolation
+                if target_guid in frac_list:
+                    # return True
+                    return True
+                # increment k
+                k += 1
 
 
 def IntersectionsPerFfracture(intersection_matrix):
