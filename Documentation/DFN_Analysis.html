@@ -1,0 +1,328 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Auto Generated Documentation &#8212; Y-Frac 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-DFN_Analysis">
+<span id="auto-generated-documentation"></span><h1>Auto Generated Documentation<a class="headerlink" href="#module-DFN_Analysis" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="DFN_Analysis.CutPlane">
+<em class="property">class </em><code class="descclassname">DFN_Analysis.</code><code class="descname">CutPlane</code><span class="sig-paren">(</span><em>plane</em>, <em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>plane: str</dt>
+<dd>desired plane for cut-plane analysis. should be uppercase</dd>
+<dt>width: float</dt>
+<dd>width of the cut-plane</dd>
+<dt>height: float</dt>
+<dd>height of the cut-plane</dd>
+<dt>GUID: guid</dt>
+<dd>guids of the cut plane</dd>
+<dt>intersecting_fractures: list</dt>
+<dd>list of fractures intersecting the cut plane</dd>
+</dl>
+<dl class="docutils">
+<dt>DrawPlane(dist, axis_of_rotation, angle_of_rotation)</dt>
+<dd>displays the cut plane on Rhino interface</dd>
+<dt>TotalLengthOfFractures(fracture_guid_list, cut_plane)</dt>
+<dd>returns sum of length of all fractures intersecting the plane</dd>
+<dt>NumberOfIntersectingFractures()</dt>
+<dd>returns the number of fractures on the plane</dd>
+<dt>FractureIntensity_P21(length_of_fractures)</dt>
+<dd>calculates and returns Fracture Intensity P_21</dd>
+<dt>PlaneLines(plane_guid)</dt>
+<dd>breaks the plane into lines and returns a list of guids of those
+lines</dd>
+<dt>IntersectionMatrix(boundary_list, intersected_fractures)</dt>
+<dd>prepares and returns the intersection matrix</dd>
+<dt>Percolate(initial_guid, target_guid, boundary_list,</dt>
+<dd><blockquote class="first">
+<div>intersection_matrix, domain_fractures)</div></blockquote>
+<p class="last">determines the percolation state of the plane</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.DrawPlane">
+<code class="descname">DrawPlane</code><span class="sig-paren">(</span><em>dist</em>, <em>axis_of_rotation</em>, <em>angle_of_rotation</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.DrawPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to draw the plane on Rhino interface. Returns the plane’s
+Guid</p>
+<dl class="docutils">
+<dt>dist: float</dt>
+<dd>dist to move away from y-axis (origin) if ‘ZX’ plane
+dist to move away from x-axis (origin) if ‘YZ’ plane
+dist to move away from z-axis (origin) if ‘XY’ plane</dd>
+<dt>axis_of_rotation: list</dt>
+<dd>list specifying axis of rotation on Rhino
+e.g. [1,0,0] is to rotate on x-axis</dd>
+<dt>angle_of_rotation: float</dt>
+<dd>angle to rotate the plane</dd>
+</dl>
+<dl class="docutils">
+<dt>ValueError</dt>
+<dd>if the argument ‘dist’ is less than than 0.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.FractureIntensity_P21">
+<code class="descname">FractureIntensity_P21</code><span class="sig-paren">(</span><em>length_of_fractures</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.FractureIntensity_P21" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function which calculates and returns Fracture Intensity P_21</p>
+<dl class="docutils">
+<dt>length_of_fractures: float</dt>
+<dd>length of fractures intersecting the plane</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.IntersectionMatrix">
+<code class="descname">IntersectionMatrix</code><span class="sig-paren">(</span><em>boundary_list</em>, <em>intersected_fractures</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.IntersectionMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to perform fracture-fractrure intersection and 
+fracture-boundary intersection, then form an intersection matrix.</p>
+<dl class="docutils">
+<dt>boundary_list: list</dt>
+<dd>list of GUIDs of the plane’s boundaries</dd>
+<dt>intersected_fractures: list</dt>
+<dd>list of GUIDs of the intersecting fractures</dd>
+</dl>
+<dl class="docutils">
+<dt>TypeError</dt>
+<dd>if the arguments are not lists</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.NumberOfIntersectingFractures">
+<code class="descname">NumberOfIntersectingFractures</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.NumberOfIntersectingFractures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return the number of fractures intersecting the cut plane</p>
+<p>None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.Percolate">
+<code class="descname">Percolate</code><span class="sig-paren">(</span><em>initial_guid</em>, <em>target_guid</em>, <em>boundary_list</em>, <em>intersection_matrix</em>, <em>domain_fractures</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.Percolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to determine percolation state of the cut-palne (2D)</p>
+<dl class="docutils">
+<dt>initial_guid: guid</dt>
+<dd>guid of the first boundary</dd>
+<dt>target_guid: guid</dt>
+<dd>guid of the second boundary</dd>
+<dt>intersection_matrix: matrix</dt>
+<dd>intersection matrix</dd>
+<dt>domain_fractures: list</dt>
+<dd>list of fractures intersecting the plane</dd>
+</dl>
+<dl class="docutils">
+<dt>TypeError</dt>
+<dd>if  arguments ‘boundary_list’ and ‘domain_fractures’ are not lists</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.PlaneLines">
+<code class="descname">PlaneLines</code><span class="sig-paren">(</span><em>plane_guid</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.PlaneLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a list of GUIDs of the four lines forming the plane</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.CutPlane.TotalLengthOfFractures">
+<code class="descname">TotalLengthOfFractures</code><span class="sig-paren">(</span><em>fracture_guid_list</em>, <em>cut_plane</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.CutPlane.TotalLengthOfFractures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to intersect fractures and return the total length of
+fractures in the cut plane</p>
+<dl class="docutils">
+<dt>fracture_guid_list: list</dt>
+<dd>list containing domain fractures’ guids</dd>
+<dt>cut_plane: guid</dt>
+<dd>guid of the cut plane</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="DFN_Analysis.IntersectionAnalysis">
+<em class="property">class </em><code class="descclassname">DFN_Analysis.</code><code class="descname">IntersectionAnalysis</code><a class="headerlink" href="#DFN_Analysis.IntersectionAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class for fracture network intersection analysis</p>
+<dl class="docutils">
+<dt>no_of_fracture_intersections: int</dt>
+<dd>the number of fracture intersections in the network</dd>
+<dt>lengths_of_intersection_lines <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>a list of all the length of intersections</dd>
+</dl>
+<dl class="docutils">
+<dt>LengthOfIntersection(fracture_guid_list)</dt>
+<dd>returns the sum of all length of intersections and helps to track
+the number of fracture intersections</dd>
+<dt>FracturesSurfaceArea(fracture_guid_list)</dt>
+<dd>determines the total surface area of all fractures in the medium</dd>
+<dt>FractureIntensity_P32(fracture_guid_list, domain_length, domain_width,</dt>
+<dd><blockquote class="first">
+<div>domain_height)</div></blockquote>
+<p class="last">returns the P_32 fracture intensity</p>
+</dd>
+<dt>IntersectionsPerUnitArea(fracture_guid_list, domain_length,</dt>
+<dd><blockquote class="first">
+<div>domain_width, domain_height)</div></blockquote>
+<p class="last">determines the length of intersections per unit area of the 3D medium</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="DFN_Analysis.IntersectionAnalysis.FractureIntensity_P32">
+<code class="descname">FractureIntensity_P32</code><span class="sig-paren">(</span><em>fracture_guid_list</em>, <em>domain_length</em>, <em>domain_width</em>, <em>domain_height</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.IntersectionAnalysis.FractureIntensity_P32" title="Permalink to this definition">¶</a></dt>
+<dd><p>function which returns the P_32 fracture intensity</p>
+<dl class="docutils">
+<dt>fracture_guid_list: list</dt>
+<dd>a list of fractures’ guids in the network</dd>
+<dt>domain_length: float</dt>
+<dd>length of the fracture medium</dd>
+<dt>domain_width: float</dt>
+<dd>width of the fracture medium</dd>
+<dt>domain_height: float</dt>
+<dd>height of the fracture medium</dd>
+</dl>
+<dl class="docutils">
+<dt>ValueError</dt>
+<dd>if the domain length, hright or width is not greater than 0.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.IntersectionAnalysis.FracturesSurfaceArea">
+<code class="descname">FracturesSurfaceArea</code><span class="sig-paren">(</span><em>fracture_guid_list</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.IntersectionAnalysis.FracturesSurfaceArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>determines the total surface area of all fractures in the medium</p>
+<dl class="docutils">
+<dt>fracture_guid_list: list</dt>
+<dd>a list of fractures’ guids in the network</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.IntersectionAnalysis.IntersectionsPerUnitArea">
+<code class="descname">IntersectionsPerUnitArea</code><span class="sig-paren">(</span><em>fracture_guid_list</em>, <em>domain_length</em>, <em>domain_width</em>, <em>domain_height</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.IntersectionAnalysis.IntersectionsPerUnitArea" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>function to determine the length of intersections per unit area</dt>
+<dd>of the 3D medium</dd>
+</dl>
+<dl class="docutils">
+<dt>fracture_guid_list: list</dt>
+<dd>a list of fractures’ guids in the network</dd>
+<dt>domain_length: float</dt>
+<dd>length of the fracture medium</dd>
+<dt>domain_width: float</dt>
+<dd>width of the fracture medium</dd>
+<dt>domain_height: float</dt>
+<dd>height of the fracture medium</dd>
+</dl>
+<dl class="docutils">
+<dt>ValueError</dt>
+<dd>if the domain length, hright or width is not greater than 0.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="DFN_Analysis.IntersectionAnalysis.LengthOfIntersection">
+<code class="descname">LengthOfIntersection</code><span class="sig-paren">(</span><em>fracture_guid_list</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.IntersectionAnalysis.LengthOfIntersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the sum of all length of intersections and helps to track
+the number of fracture intersections.</p>
+<dl class="docutils">
+<dt>fracture_guid_list: list</dt>
+<dd>a list of fractures’ guids in the network</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="DFN_Analysis.IntersectionsPerFfracture">
+<code class="descclassname">DFN_Analysis.</code><code class="descname">IntersectionsPerFfracture</code><span class="sig-paren">(</span><em>intersection_matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#DFN_Analysis.IntersectionsPerFfracture" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to print the number of intersections per fracture</p>
+<dl class="docutils">
+<dt>intersection_matrix: matrix</dt>
+<dd>intersection matrix</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Y-Frac</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Falola Yusuf.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/DFN_Analysis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
