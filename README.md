@@ -57,7 +57,11 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 - The `text_files` folder contain is where the output file named `fracture_data` is written. It also contains some text files used for analysis to demonstrated Y-Frac's functionalities. Again, it is prefered this folder be copied into `Y-Frac` folder for easy accessibility.
 
 # Documentation
+- Full documentation is available in `Y-Frac.html` in `documentation` file.
+
 - Below is the architecture of Y-Frac's library
 
 ![Y-Frac](./images/frac1.PNG)
 
+
+- The table shows the basic methods and functions contained in each module, and the general functioonalities of each module.
