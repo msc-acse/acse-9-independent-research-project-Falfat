@@ -16,18 +16,44 @@ This work introduces an easy to use, open sourced library, Y-Frac, for DFN model
 ![DFN](./images/Rendered.PNG)
 
 # Requirements
-This software expands on Rhiniceros 6 python API. Hence, users need to install the software before using this library.
+This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to install the software before using this library.
 
 - Rhinoceros 6, can be donloaded [here](https://www.rhino3d.com/download)
 - Rhinoceros 6 hardware requirements can be found [here](https://www.rhino3d.com/6/system_requirements)
 - matplotlib >= 3.0.2 for postprocessing
 
 # Installation
-- Clone this repository to your computer using the following
+- Clone this repository to your computer using the following on the command line.
 
 `git clone http://github.com/msc-acse/acse-9-independent-research-project-Falfat.git`
 
 - The contents in the file should be copied to the Rhinoceros 6 script folder for use as described below
 
-`~\AppData\Roaming\McNeel\Rhinoceros\6.0\scripts`
+`~\McNeel\Rhinoceros\6.0\scripts`
+
+# Usage
+- Once the files are in the Rhino's script folder. Users should open the Rhino software and maneuver to the Rhino python scripting platform, described as follows
+
+` Tools >> PythonScript >> Edit `
+
+![Rhino](./images/Rhino.PNG)
+
+- A second interface will pop up for python scripting. Users can then access the Rhinopython script folder by clicking
+
+`File >> Open >> ~\McNeel\Rhinoceros\6.0\scripts`
+
+- A new file can the be open to access the Y-Frac modules saved in the Y-Frac folder. To open a new Rhino python scripting file:
+
+`File >> New..`
+
+- The Rhino python scripting platform does not support matplotlib package for visualisations. Therefore, the postprocesing module `PostProcessing.py` should be used on a IDE that supports matplotlib.
+
+- The `input_file` folder contains two text files that serve as to specify fracture parameters and statistical distribution for the library. It is advisable that these files should be copied to the Y-Frac folder for easy access by the modules. The instructions on how to fill these text files is contained in the files.
+
+- Y-Frac outputs a text file which contains domain size, fracture_shape, fracture orienations, planes and sizes for fracture regeneration and input to more complex software packages for flow simulation and geomechanical anlysis of fracture networks.
+
+- The `percolation_analysis` and `analysis_script` folders some contain DFN analysis done with Y-Frac. Each of the file is well commented to describe the analysis contained in it.
+
+
+
 
