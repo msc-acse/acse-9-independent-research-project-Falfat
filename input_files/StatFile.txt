@@ -1,0 +1,8 @@
+#Statistical data required for fracture generation
+
+#Orientation distribution
+orientation = uniform
+#location distribution
+location = uniform
+#size distribution
+size = uniform
