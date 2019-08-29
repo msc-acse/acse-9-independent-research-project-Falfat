@@ -1,12 +1,33 @@
 # A Discrete Fracture Network Generation and Analysis Library for Use in CAD Software Environments
 
-# Supervisors: ROBIN N THOMAS, ADRIANA PASLUSZNY
+# Author: 
+
+Name: Falola Yusuf
+
+Email address: fyf17@ic.ac.uk
+
+CID: 01481781
+
 
 # Introduction
 
-Discrete fracture network (DFN) models are a type of numerical model which are widely used to improve understanding of the properties of fractured media. In these models, fractures are represented as geometric objects in the domain. A wide range of different numerical methods have been adapted to handling the complexity which emerges in DFN domains. Many of the key properties of a fracture network derive from its geometric properties, including the density and clustering of fractures, frequency of intersections between fractures, and the connectivity which arises when multiple fractures intersect. These features have significant implications for the mechanical and hydraulic properties of fractured rock masses. Real fracture networks observed in outcrops demonstrate the additional complexity which arises in real networks, and underline the requirement to model networks in three dimensions in order to reproduce real subsurface properties
+This work introduces an easy to use, open sourced library, Y-Frac, for DFN modelling and analysis. Y-Frac is built upon the python APIs available on Rhinoceros 6. Hence, Y-Frac is fit for use on Rhinoceros software package. Y-Frac can model fracture networks containing circular, elliptical and regular polygonal fractures. This library is computationally cheap for DFN modelling and analysis. Some of the functionalities of this library for DFN analysis include fracture intersection analysis, cut-plane analysis, and percolation analysis. Algorithms for constructing an intersection matrix and determining percolation state of a fracture network are also included in this work. The output text file from this library containing modelled fracture networks’ parameters can serve as input for appropriate software packages to simulate flow and perform mechanical analysis in fracture networks. The practical applicability of Y-Frac was demonstrated by performing percolation threshold analysis of 3D fracture networks and comparing the results to published data. 
 
+![Rendered.png](./images/Rendered.png)
 
-# Research Objectives
-This project will develop an open source library for generating three-dimensional discrete fracture networks within the Rhinoceros 3D commercial CAD application. The software provides a Python API which the library will expand on, adding functionality specifically tailored to DFN generation and analysis. By exploiting the variety of file formats available in contemporary CAD software, networks generated using the library will subsequently be applicable in many different applications. Furthermore, the library will include methods for examining the properties of the generated networks, including fracture intensity, cut-plane properties, network connectivity, and percolation, thereby providing a platform for examining the science of fracture networks
+# Requirements
+This software expands on Rhiniceros 6 python API. Hence, users need to install the software before using this library.
+
+- Rhinoceros 6, can be donloaded [here](https://www.rhino3d.com/download)
+- Rhinoceros 6 hardware requirements can be found [here](https://www.rhino3d.com/6/system_requirements)
+- matplotlib >= 3.0.2 for postprocessing
+
+# Installation
+- Clone this repository to your computer using the following
+
+`git clone http://github.com/msc-acse/acse-9-independent-research-project-Falfat.git`
+
+- The contents in the file should be copied to the Rhinoceros 6 script folder for use as described below
+
+`~\AppData\Roaming\McNeel\Rhinoceros\6.0\scripts`
 
