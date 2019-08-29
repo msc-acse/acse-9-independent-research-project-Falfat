@@ -1,6 +1,0 @@
-Auto Generated Documentation
-============================
-
-.. automodule:: DFN_Gen
-   :members:
-
