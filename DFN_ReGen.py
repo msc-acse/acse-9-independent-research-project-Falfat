@@ -1,8 +1,10 @@
+# Falola Yusuf, Github: falfat
 import random
 import rhinoscriptsyntax as rs
 import DFN_Gen
 import Domain
 import Frac
+import math
 
 rs.EnableRedraw(False)
 path = "C:/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files/fracture_data.txt"
@@ -153,8 +155,10 @@ def RedrawNetwork(path):
         origin = []
         # list to store number of sides of each polygon
         size = []
-        # list to store number of angle of deviation of each polygon
-        angle = []
+        # list to store the x_axis of the fracture plane 
+        x_axis = []
+        # list to store the y_axis of the fracture plane
+        y_axis = []
         # list to store fractures
         frac_list = []
         # list to store points
@@ -164,10 +168,12 @@ def RedrawNetwork(path):
             words = line.split(",")
             # store the number of sides of the polygon
             size.append(float(words[-1]))
-            # store the angle of deviation
-            angle.append(float(words[-2]))
-            # stpre the origin
-            origin.extend((float(words[-5]),float(words[-4]),float(words[-3])))
+            # store the x axis
+            x_axis.extend((float(words[-7]),float(words[-6]),float(words[-5])))
+            
+            y_axis.extend((float(words[-4]),float(words[-3]),float(words[-2])))
+            # store the origin
+            origin.extend((float(words[-10]),float(words[-9]),float(words[-8])))
             # length of all points on the line
             # this will ensure we capture lines with disparate points when
             # generating polygon of different sides
@@ -184,10 +190,14 @@ def RedrawNetwork(path):
         for i in range(len(size)):
             # list to store points and origin
             o = []
+            x = []
+            y = []
             p = []
-            # get the origin of the fracture
+            # get the origin and axes of the fracture
             for j in range(3):
                 o.append(origin[n+j])
+                x.append(x_axis[n+j])
+                y.append(y_axis[n+j])
             # variable for parsing
             r = 0
             # get the points of fracture edges
@@ -210,8 +220,16 @@ def RedrawNetwork(path):
             rs.CurrentLayer(layer_name)
             # joing the points
             poly = rs.AddPolyline(p)
-            # roatate the fracture
-            frac = rs.RotateObject(poly,o,angle[i],[0,1,0])
+            # get the plane
+            plane = rs.PlaneFromFrame(o,x,y)
+            # transform fracture to the plane
+            cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            shear2d = rs.XformIdentity()
+            shear2d[0,2] = math.tan(math.radians(45.0))
+            cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            temp = rs.XformMultiply(shear2d, cob)
+            xform = rs.XformMultiply(cob_inverse, temp)
+            frac = rs.TransformObjects(poly, xform, False )
             # convert to a surface
             surf = rs.AddPlanarSrf(frac)
             #delete initial fracture drawn which is a curve
