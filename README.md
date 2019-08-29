@@ -27,7 +27,7 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 
 `git clone http://github.com/msc-acse/acse-9-independent-research-project-Falfat.git`
 
-- The contents in the file should be copied to the Rhinoceros 6 script folder for use as described below
+- The contents in the file should be copied to the Rhinoceros 6 script folder for use, as described below
 
 `~\McNeel\Rhinoceros\6.0\scripts`
 
@@ -55,5 +55,8 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 - The `percolation_analysis` and `analysis_script` folders some contain DFN analysis done with Y-Frac. Each of the file is well commented to describe the analysis contained in it.
 
 
+# Documentation
+- Below is the architecture of Y-Frac's library
 
+![Y-Frac](./images/frac.PNG)
 
