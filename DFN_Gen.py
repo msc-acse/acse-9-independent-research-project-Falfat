@@ -1,3 +1,4 @@
+# Falola Yusuf, Github: falfat
 import rhinoscriptsyntax as rs
 from imp import reload  # to reload modules
 import math
@@ -74,7 +75,7 @@ def FractureSize(size_dist, radius_min, radius_max):
             # dtdermine radius
             radius = random.uniform(radius_min, radius_max)
         if size_dist == 'exponential':
-            radius = random.ex
+            pass
         # return radius
         return radius
 
@@ -91,19 +92,14 @@ def PolyOrientation(min_angle,max_angle):
     return random.uniform(min_angle, max_angle)
 
 
-def InclinePlane(origin):
+def InclinePlane(origin, boxlength):
     """
     A function to get a plane for a circle, using its origin
-
-    Parameter
-    --------
+    
     origin: list
-        fracture origin
-
-    Raises
-    ------
-    TypeError
-        if argument is not of type list
+        origin of the fracture
+    boxlength: float
+        domain lenght
     """
     try:
         if (type(origin) != list):
@@ -114,22 +110,22 @@ def InclinePlane(origin):
         if orientation_dist == 'uniform':
             # initialise a list called norm
             norm = []
-            # define a random vector
-            vector = [random.uniform(0, boxlength), random.uniform(0, boxlength), random.uniform(0, boxlength)]
+            # find angles
+            # we want to uniformly distributed points around a sphere
+            theta_0 = 2*math.pi*random.uniform(0,1)
+            theta_1 = math.acos(1-2*random.uniform(0,1))
+            # determine the vectors
+            vector = [boxlength*math.cos(theta_0),boxlength*math.sin(theta_0)*math.cos(theta_1),boxlength*math.sin(theta_0)*math.sin(theta_1)]
             # a loop to store the difference between the origin and vector
             for i in range(3):
                 norm.append(vector[i] - origin[i])
-            # store the norm as normal
-            # unitize the 3d vector
+            #xunitize the 3d vector
             normal = rs.VectorUnitize(norm)
-            # convert the origin to a plane
+            #xconvert the origin to a plane
             plane = rs.PlaneFromNormal(origin, normal)
-            # retrun plane
             return plane
-
-
-def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
-                     max_angle=None, sides=None):
+            
+def FixedFractureGen(frac_num, aspect_ratio=None, sides=None):
     """
     A function to add a fixed number of circles in a cube. It also writes data
     to fracture data text file for regenerating fracture networks.
@@ -140,12 +136,8 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
         number of fractures to generate
     aspect_ratio: float
         aspect ratio for ellipse (Default:None)
-    min_angle: float
-        minimum angle of rotation for polygon (Default:None)
-    max_angle: float
-        maximum angle of rotation for polygon (Default:None)
     sides: int
-        number of sides of polygon to generate
+        number of sides of polygon to generate (Default:None)
     """
     file = open(path, 'a')
     if fracture_shape == 'circle':
@@ -166,7 +158,7 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
             # store farcture center
             frac.fracture_center = origin
             # convert the origin to a plane
-            plane = InclinePlane(origin)
+            plane = InclinePlane(origin, boxlength)
             # add layer and color
             rs.AddLayer(layer_name, rs.CreateColor(0, 255, 0))
             # make current layer
@@ -199,7 +191,7 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
             origin = GeneratePoint(boxlength)
             frac.fracture_center = origin
             # plane for fracture
-            plane = InclinePlane(origin)
+            plane = InclinePlane(origin, boxlength)
             # calculate r_y
             ry = radius/aspect_ratio
             # create layer for fracture
@@ -248,6 +240,7 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
                 trans = rs.XformRotation2(theta_deg*j, ax, origin)
                 # transform the original 3D point and append to list
                 points.append(rs.PointTransform(pt_01, trans))
+                # write to file
                 if j == 0:
                     file.write(str(rs.PointTransform(pt_01, trans)[0])+","+str(rs.PointTransform(pt_01, trans)[1])+","+str(rs.PointTransform(pt_01, trans)[2])+",")
                 if j != 0:
@@ -262,12 +255,18 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
             rs.CurrentLayer(layer_name)
             # get GUID of created polygon
             polygon = rs.AddPolyline(points)
-            # create an angle of rotation
-            angle = PolyOrientation(min_angle, max_angle)
-            # rotate polygon about y-axis
-            fracture = rs.RotateObject(polygon, origin, angle, [0, 1, 0])
+            # get the plane
+            plane = InclinePlane(origin, boxlength)
+            # transform the polygon to the plane
+            cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            shear2d = rs.XformIdentity()
+            shear2d[0,2] = math.tan(math.radians(45.0))
+            cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            temp = rs.XformMultiply(shear2d, cob)
+            xform = rs.XformMultiply(cob_inverse, temp)
+            fracture = rs.TransformObjects(polygon, xform, False )
             # write data to file for regeneration
-            file.write(str(origin[0])+","+str(origin[1])+","+str(origin[2])+","+str(angle)+","+str(sides)+"\n")
+            file.write(str(plane[0])+","+str(plane[1])+","+str(plane[2])+","+str(sides)+"\n")
             # make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
             # delete initial fracture drawn which is a curve
@@ -284,7 +283,7 @@ def FixedFractureGen(frac_num, aspect_ratio=None, min_angle=None,
 
 def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
                       aspect_min=None, aspect_max=None, polysize_min=None,
-                      polysize_max=None, min_angle=None, max_angle=None):
+                      polysize_max=None):
     """
     Funtions to generate fractures of random number and sizes
     
@@ -306,10 +305,6 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
         minimum size of polygon (Default:None)
     polysize_max: int
         maximum size of polygon (Default:None)
-    min_angle: float
-        minimum angle of rotation for polygon (Default:None)
-    max_angle: float
-        maximum angle of rotation for polygon (Default:None)
     """
     # randomly determine the number of fractures to generate
     num_frac = random.randint(frac_min, frac_max)
@@ -333,7 +328,7 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
             # store fracture center
             frac.fracture_center = origin
             # convert the origin to a plane
-            plane = InclinePlane(origin)
+            plane = InclinePlane(origin, boxlength)
             # add layer and create color for it
             rs.AddLayer(layer_name, rs.CreateColor(0, 255, 0))
             # make layer current layer
@@ -368,7 +363,7 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
             # store fracture center
             frac.fracture_center = origin
             # plane for fracture
-            plane = InclinePlane(origin)
+            plane = InclinePlane(origin, boxlength)
             # randomly generate radius(rx)
             radius = FractureSize(size_dist, radius_min, radius_max)
             # randomly generate aspect ratio
@@ -397,7 +392,7 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
         fracture_list = []
         # write the shape type
         file.write('\npolygon\n')
-        for i in range(n):
+        for i in range(num_frac):
             # name the layer
             layer_name = "FRACTURE" + str(i+1)
             # an instance of fracture class
@@ -441,11 +436,19 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
             rs.CurrentLayer(layer_name)
             # get GUID of created polygon
             polygon = rs.AddPolyline(points)
-            # create an angle of rotation
-            angle = PolyOrientation(min_angle, max_angle)
-            # rotate polygon about y-axis
-            fracture = rs.RotateObject(polygon, origin, angle, [0, 1, 0])
-            file.write(str(origin[0]) + "," + str(origin[1]) + "," + str(origin[2]) + "," +  str(angle) + "," + str(sides) + "\n")
+            # get the plane
+            plane = InclinePlane(origin, boxlength)
+            # transform the polygon to the plane
+            cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            shear2d = rs.XformIdentity()
+            shear2d[0,2] = math.tan(math.radians(45.0))
+            cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            temp = rs.XformMultiply(shear2d, cob)
+            xform = rs.XformMultiply(cob_inverse, temp)
+            fracture = rs.TransformObjects(polygon, xform, False )
+            # write to file
+            #file.write(str(origin[0]) + "," + str(origin[1]) + "," + str(origin[2])+ "," )
+            file.write(str(plane[0]) + "," + str(plane[1]) + "," + str(plane[2]) + "," + str(sides) + "\n")
             # make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
             # delete initial fracture drawn which is a curve
@@ -490,7 +493,7 @@ def SeparatedFractureGen(threshold=None, aspect_ratio=None, min_angle=None,
         # store farcture center
         frac.fracture_center = origin
         # convert the origin to a plane
-        plane = InclinePlane(origin)
+        plane = InclinePlane(origin, boxlength)
         # add layer and color
         rs.AddLayer(layer_name, rs.CreateColor(0, 255, 0))
         # make current layer
@@ -527,7 +530,7 @@ def SeparatedFractureGen(threshold=None, aspect_ratio=None, min_angle=None,
                 # store farcture center
                 frac.fracture_center = origin
                 # convert the origin to a plane
-                plane = InclinePlane(origin)
+                plane = InclinePlane(origin, boxlength)
                 # add layer and color
                 rs.AddLayer(layer_name, rs.CreateColor(0, 255, 0))
                 # make current layer
@@ -555,7 +558,8 @@ if __name__ == "__main__":
     # reload(Domain)
     dom = Domain.Domain(boxlength)
     dom.Show()
-    frac_list = FixedFractureGen(n)
+    #frac_list = FixedFractureGen(n,0,4)
+    f = RandomFractureGen(10,11,2,4,0,0,4,5)
     # FixedFractureGen(n,aspect_ratio=2,min_angle=0,max_angle =360, sides =5)
     # frac_list = RandomFractureGen(20, 30, 1, 3,1,4, 4, 7)
 #    # print(Domain.fractures)
