@@ -9,6 +9,14 @@ import math
 rs.EnableRedraw(False)
 path = "C:/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files/fracture_data.txt"
 def RedrawNetwork(path):
+    """
+    A function to reload/regenerate fracture networks.
+    
+    Parameter
+    --------
+    path: str
+        path where the text file containing fracture data is stored.
+    """
     # open text file
     m = open(path,'r')
     # read first line of text file; length of the domain
