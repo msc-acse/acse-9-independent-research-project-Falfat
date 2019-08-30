@@ -1,0 +1,29 @@
+.. Y-Frac documentation master file, created by
+   sphinx-quickstart on Fri Aug 30 15:12:52 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Y-Frac's documentation!
+==================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   DFN_Analysis
+   DFN_Gen
+   DFN_PostProcessing
+   DFN_ReGen
+   Domain
+   Frac
+   Input
+   StatInput
+   Matrix
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
