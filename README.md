@@ -11,7 +11,7 @@ CID: 01481781
 
 # Introduction
 
-This work introduces an easy to use, open sourced library, Y-Frac, for DFN modelling and analysis. Y-Frac is built upon the python APIs available on Rhinoceros 6. Hence, Y-Frac is fit for use on Rhinoceros software package. Y-Frac can model fracture networks containing circular, elliptical and regular polygonal fractures. This library is computationally cheap for DFN modelling and analysis. Some of the functionalities of this library for DFN analysis include fracture intersection analysis, cut-plane analysis, and percolation analysis. The output text file from this library containing modelled fracture networks’ parameters can serve as input for appropriate software packages to simulate flow and perform mechanical analysis in fracture networks.
+This work proposes an easy to use, open sourced library, Y-Frac, for DFN modelling and analysis. Y-Frac is built upon the python APIs available on Rhinoceros 6. Hence, Y-Frac is fit for use on Rhinoceros software package. Y-Frac can model fracture networks containing circular, elliptical and regular polygonal fractures. This library is computationally cheap for DFN modelling and analysis. Some of the functionalities of this library for DFN analysis include fracture intersection analysis, cut-plane analysis, and percolation analysis. The output text file from this library containing modelled fracture networks’ parameters can serve as input for appropriate software packages to simulate flow and perform mechanical analysis in fracture networks.
 
 ![DFN](./images/Rendered.PNG)
 
@@ -20,6 +20,8 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 
 - Rhinoceros 6 for windows, can be donloaded [here](https://www.rhino3d.com/download)
 - Rhinoceros 6 for windows hardware requirements can be found [here](https://www.rhino3d.com/6/system_requirements)
+- Rhinoceros 6 python API documentation can be found [here](https://developer.rhino3d.com/api/RhinoScriptSyntax/) 
+- Users can look up Rhino [user guide](http://docs.mcneel.com/rhino/6/usersguide/en-us/index.htm)
 - matplotlib >= 3.0.2 for postprocessing
 
 # Installation
