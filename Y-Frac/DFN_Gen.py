@@ -79,18 +79,6 @@ def FractureSize(size_dist, radius_min, radius_max):
         # return radius
         return radius
 
-    
-def PolyOrientation(min_angle,max_angle):
-    """
-    function to dtermine angle of orientation for polygons
-    
-    min_angle: float
-        minimum angle for fractures
-    max_angle: float
-        maximum angle for fractures 
-    """
-    return random.uniform(min_angle, max_angle)
-
 
 def InclinePlane(origin, boxlength):
     """
