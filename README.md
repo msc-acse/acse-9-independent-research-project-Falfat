@@ -64,8 +64,8 @@ dom = Domain.Domain(boxlength)
 # draw domain
 #dom.Show() 
 
-# insert n fractures in the domain
-#frac_list = DFN_Gen.FixedFractureGen(50,aspect_ratio=2,min_angle=0,max_angle =360, sides =5)
+# insert 50 fractures in the domain
+frac_list = DFN_Gen.FixedFractureGen(50,aspect_ratio=2, sides =5)
 
 # trim out of bounds fractures
 dom.RemoveSurfacesOutsideOfBox(dom.length)
@@ -265,4 +265,3 @@ def FixedFractureGen(frac_num, aspect_ratio=None, sides=None):
 - Thanks to my classmates for their moral and academic support.
 - My family is well appreciated for their support in all ramifications. 
 
-- The table shows the basic methods and functions contained in each module, and the general functioonalities of each module.
