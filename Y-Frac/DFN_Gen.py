@@ -257,14 +257,25 @@ def FixedFractureGen(frac_num, aspect_ratio=None, sides=None):
             polygon = rs.AddPolyline(points)
             # get the plane
             plane = InclinePlane(origin, boxlength)
-            # transform the polygon to the plane
+            # get the plane
+            plane = InclinePlane(origin, boxlength)
+            # transform the polygon to the plane using the 
+            # method in rhino docs
+            # get change of basis transformation matrix
+            # current plane is XY
             cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            # get an identitiy transformation matrix
             shear2d = rs.XformIdentity()
-            shear2d[0,2] = math.tan(math.radians(45.0))
+            # fill the third element of the first row
+            shear2d[0, 2] = math.tan(math.radians(45.0))
+            # get the inverse change of basis matrix
             cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            # multiply matrices
             temp = rs.XformMultiply(shear2d, cob)
+            # multiply matrices
             xform = rs.XformMultiply(cob_inverse, temp)
-            fracture = rs.TransformObjects(polygon, xform, False )
+            # get the transformed object in the right plane
+            fracture = rs.TransformObjects(polygon, xform, False)
             # write data to file for regeneration
             file.write(str(plane[0])+","+str(plane[1])+","+str(plane[2])+","+str(sides)+"\n")
             # make fracture a surface
@@ -438,16 +449,26 @@ def RandomFractureGen(frac_min, frac_max, radius_min, radius_max,
             polygon = rs.AddPolyline(points)
             # get the plane
             plane = InclinePlane(origin, boxlength)
-            # transform the polygon to the plane
+            # get the plane
+            plane = InclinePlane(origin, boxlength)
+            # transform the polygon to the plane using the 
+            # method in rhino docs
+            # get change of basis transformation matrix
+            # current plane is XY
             cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            # get an identitiy transformation matrix
             shear2d = rs.XformIdentity()
-            shear2d[0,2] = math.tan(math.radians(45.0))
+            # fill the third element of the first row
+            shear2d[0, 2] = math.tan(math.radians(45.0))
+            # get the inverse change of basis matrix
             cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            # multiply matrices
             temp = rs.XformMultiply(shear2d, cob)
+            # multiply matrices
             xform = rs.XformMultiply(cob_inverse, temp)
-            fracture = rs.TransformObjects(polygon, xform, False )
-            # write to file
-            #file.write(str(origin[0]) + "," + str(origin[1]) + "," + str(origin[2])+ "," )
+            # get the transformed object in the right plane
+            fracture = rs.TransformObjects(polygon, xform, False)
+            # write data to file for regeneration
             file.write(str(plane[0]) + "," + str(plane[1]) + "," + str(plane[2]) + "," + str(sides) + "\n")
             # make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
