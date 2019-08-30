@@ -5,6 +5,6 @@ radius = 4
 #length of box
 length = 20
 #number of fractures to be inserted in the domain, if random size isn't desired
-numberoffractures = 500
+numberoffractures = 50
 #fracture shape
-shape = circle
+shape = polygon
