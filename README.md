@@ -56,6 +56,21 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 
 - The `text_files` folder contain is where the output file named `fracture_data` is written. It also contains some text files used for analysis to demonstrated Y-Frac's functionalities. Again, it is prefered this folder be copied into `Y-Frac` folder for easy accessibility.
 
+## Example 1: Generating fixed number of fractures
+```python
+# create an instance of domain
+dom = Domain.Domain(boxlength) 
+
+# draw domain
+#dom.Show() 
+
+# insert n fractures in the domain
+#frac_list = DFN_Gen.FixedFractureGen(50,aspect_ratio=2,min_angle=0,max_angle =360, sides =5)
+
+# trim out of bounds fractures
+dom.RemoveSurfacesOutsideOfBox(dom.length)
+```
+
 
 # Documentation
 - Full documentation is available in `Y-Frac.html` in `documentation` file.
