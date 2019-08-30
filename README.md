@@ -54,11 +54,11 @@ This software expands on Rhiniceros (Rhino) 6 python API. Hence, users need to i
 
 - Y-Frac outputs a text file which contains domain size, fracture_shape, fracture orienations, planes and sizes for fracture regeneration and input to more complex software packages for flow simulation and geomechanical anlysis of fracture networks.
 
-- The `percolation_analysis` and `analysis_script` folders some contain DFN analysis done with Y-Frac. Each of the file is well commented to describe the analysis contained in it. Basically, these folders and the test folder, `test_scripts` should be unbundled into the `Y-Frac` folder conatining the modules. The `test_scripts` contains some files to test the functionalities of the methods in this library.
+- The `percolation_analysis` and `analysis_script` folders contain some DFN analysis done with Y-Frac. Each of the file is well commented to describe the analysis contained in it. Basically, these folders and the test folder, `test_scripts` should be unbundled into the `Y-Frac` folder conatining the modules. The `test_scripts` contains some files to test the functionalities of the methods in this library.
 
 - The `text_files` folder contain is where the output file named `fracture_data` is written. It also contains some text files used for analysis to demonstrated Y-Frac's functionalities. Again, it is prefered this folder be copied into `Y-Frac` folder for easy accessibility.
 
-## Example 1: Generating fixed number of fractures
+## Example: Generating fixed number of fractures
 ```python
 # create an instance of domain
 dom = Domain.Domain(boxlength) 
