@@ -1,4 +1,6 @@
+# Falola Yusuf, Github: falfat
 import rhinoscriptsyntax as rs
+import Domain
 from DFN_Analysis import IntersectionAnalysis 
 from Frac import Fracture
 from DFN_Analysis import CutPlane
@@ -8,7 +10,6 @@ import StatInput
 import scriptcontext as sc
 import math
 import random
-import Domain
 
 rs.EnableRedraw(False)
 sc.doc.Objects.Clear()
@@ -28,9 +29,9 @@ def fractures(frac_list):
 
 def GeneratePoint(boxlength):
     if location_dist == 'uniform':
-        x = random.uniform(0, boxlength)
-        y = random.uniform(0, boxlength)   
-        z = random.uniform(0, boxlength)
+        x = random.uniform(0,boxlength)
+        y = random.uniform(0,boxlength)   
+        z = random.uniform(0,boxlength)
         return [x,y,z]
     
 def FractureSize(size_dist,radius_min, radius_max):
@@ -43,19 +44,11 @@ def FractureSize(size_dist,radius_min, radius_max):
         if size_dist == 'uniform':
             radius = random.uniform(radius_min, radius_max)
         if size_dist == 'exponential':
-            pass   
+            radius = random.ex   
         return radius
         
-def PolyOrientation(min_angle, max_angle):
-    try:
-        if min_angle < 0 or max_angle <= 0:
-            raise ValueError
-    except ValueError:
-        print("The input values are not appropriate")
-    else:
-        return random.uniform(min_angle, max_angle)
     
-def InclinePlane(origin):
+def InclinePlane(origin, boxlength):
     """
     A function to get a plane for a circle, using its origin
     """
@@ -66,20 +59,23 @@ def InclinePlane(origin):
         print("InclinedPlane() argument 'origin' should be a type list")
     else:
         if orientation_dist == 'uniform':
-        # initialise a list called norm
+        #initialise a list called norm
             norm = []
-            # define a random vector
-            vector = [random.uniform(0,boxlength),random.uniform(0,boxlength),random.uniform(0,boxlength)]
-            # a loop to store the difference between the origin and vector
+            #define a random vector
+            theta_0 = 2*math.pi*random.uniform(0,1)
+            theta_1 = math.acos(1-2*random.uniform(0,1))
+            vector = [boxlength*math.cos(theta_0),boxlength*math.sin(theta_0)*math.cos(theta_1),boxlength*math.sin(theta_0)*math.sin(theta_1)]
+            #a loop to store the difference between the origin and vector
             for i in range(3):
                 norm.append(vector[i] - origin[i])
-            # unitize the 3d vector
+            #unitize the 3d vector
             normal = rs.VectorUnitize(norm)
-            # convert the origin to a plane
+            #convert the origin to a plane
             plane = rs.PlaneFromNormal(origin, normal)
             return plane
-
-def FixedFractureGen(n, aspect_ratio=None,min_angle=None,max_angle=None,sides=None):
+            
+            
+def FixedFractureGen(n, aspect_ratio=None,sides=None):
     """
     A function to add a fixed number of circles in a cube. It also writes data 
     to fracture data text file for regenerating fracture networks.
@@ -89,101 +85,111 @@ def FixedFractureGen(n, aspect_ratio=None,min_angle=None,max_angle=None,sides=No
         fracture_list = []
         # a loop to insert the fixed number of fractures
         for i in range(n):
-            # layer name for the frcature
+            #layer name for the frcature
             layer_name = "FRACTURE_" + str(i+1)
-            # create an istance of Fracture class
+            #create an istance of Fracture class
             frac = Fracture()
-            # store fracture name
+            #store fracture name
             frac.fracture_name = layer_name
-            # generate origin for fracture
+            #generate origin for fracture
             origin = GeneratePoint(boxlength)
             #store farcture center
             frac.fracture_center = origin
-            # convert the origin to a plane
+            #convert the origin to a plane
             plane = InclinePlane(origin)
-            # add layer and color
+            #add layer and color
             rs.AddLayer(layer_name,rs.CreateColor(0,255,0))
-            # make current layer
+            #make current layer
             rs.CurrentLayer(layer_name)
-            # insert the fracture in the domain
+            #insert the fracture in the domain
             my_circle = rs.AddCircle(plane,radius)
-            # convert to surface
+            #circle_list.append(my_circle)
             surf = rs.AddPlanarSrf(my_circle)
-            # delete initial fracture drawn which is a curve
+            #delete initial fracture drawn which is a curve
             rs.DeleteObject(my_circle)
-            # save fracture's GUID
+            #save fracture's GUID
             frac.fracture_GUID = surf[0]
-            # append fracture into fracture list
+            #append fracture into fracture list
             fracture_list.append(frac)
             
             
     elif fracture_shape == 'ellipse':
-        # list to store fracture surface GUIDs
+        #list to store fracture surface GUIDs
         fracture_list = []
         for i in range(n):
-            # layer name for the frcature
+            #layer name for the frcature
             layer_name = "FRACTURE_" + str(i+1)
-            # create an istance of Fracture class
+            #create an istance of Fracture class
             frac = Fracture()
             frac.fracture_name = layer_name
-            # generate fracture origin
+            #generate fracture origin
             origin = GeneratePoint(boxlength)
             frac.fracture_center = origin
-            # plane for fracture
+            #plane for fracture
             plane = InclinePlane(origin)
-            # calculate r_y
+            #calculate r_y
             ry = radius/aspect_ratio
-            # create layer for fracture
+            #create layer for fracture
             rs.AddLayer(layer_name,rs.CreateColor(0,255,0))
             rs.CurrentLayer(layer_name)
-            # draw ellipse
+            #draw ellipse
             fracture = rs.AddEllipse(plane,radius, ry)
-            # make fracture a surface
+            # write the plane, r_x and r_y to file for re-plotting
+            ##file.write("\n" + str(plane[0]) + "," +  str(plane[1]) + "," +  str(plane[2]) + "," + str(radius) + ","+ str(ry))
+            #make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
-            # delete initial fracture drawn which is a curve
+            #delete initial fracture drawn which is a curve
             rs.DeleteObject(fracture)
-            # append surface GUID to list of fracture surfaces
+            #append surface GUID to list of fracture surfaces
             frac.fracture_GUID = frac_surf[0]
             fracture_list.append(frac)
         
     elif fracture_shape == 'polygon':
-        # list to store fracture surface GUIDs
+        #list to store fracture surface GUIDs
         fracture_list = []
+        #write the shape type
+        ##file.write('\npolygon\n')
         for i in range(n):
             layer_name = "FRACTURE_" + str(i+1)
             frac = Fracture()
             frac.fracture_name = layer_name
-            # theta in radian
+            #theta in radian
             theta_rad = (2*math.pi)/sides
-            # theta in degree (interior angles)
+            #theta in degree (interior angles)
             theta_deg = theta_rad*(180/math.pi)
-            # generate origin
+            #generate origin
             origin = GeneratePoint(boxlength)
             frac.fracture_center = origin
-            # create a 3D point object which isn't visible to the rhino document
+            #create a 3D point object which isn't visible to the rhino document
             pt_01 = rs.coerce3dvector([radius+origin[0],origin[1],origin[2]])
-            # empty list to store all points
+            #empty list to store all points
             points = []
-            # a rotation axis 
+            #a rotation axis 
             ax = rs.coerce3dvector([0,0,1])
-            # loop to generate points for polygon vertices
+            #loop to generate points for polygon vertices
+            #file.write("\n")
             for j in range(sides):
-                # rotation transform with rotation from the origin
+                #rotation transform with rotation from the origin
                 trans = rs.XformRotation2(theta_deg*j, ax, origin)
-                # transform the original 3D point and append to list
+                #transform the original 3D point and append to list
                 points.append(rs.PointTransform(pt_01,trans))
-            # append the first point to close the polygon   
+            # append the initial point to close the polygon
             points.append(pt_01)
-            # create new layer
+            # create layer for fracture
+            # layer_name = "FRACTURE_" + str(i+1)
             rs.AddLayer(layer_name,rs.CreateColor(0,255,0))
-            # make current layer
             rs.CurrentLayer(layer_name)
             # get GUID of created polygon
             polygon = rs.AddPolyline(points)
-            # create an angle of rotation
-            angle = PolyOrientation(min_angle,max_angle)
-            # rotate polygon about y-axis
-            fracture = rs.RotateObject(polygon,origin,angle,[0,1,0])
+            # polygon = rs.AddPolyline(points)
+            plane = InclinePlane(origin, boxlength)
+            cob = rs.XformChangeBasis(rs.WorldXYPlane(), plane)
+            shear2d = rs.XformIdentity()
+            shear2d[0,2] = math.tan(math.radians(45.0))
+            cob_inverse = rs.XformChangeBasis(plane, rs.WorldXYPlane())
+            temp = rs.XformMultiply(shear2d, cob)
+            xform = rs.XformMultiply(cob_inverse, temp)
+            fracture = rs.TransformObjects(polygon, xform, False )
             # make fracture a surface
             frac_surf = rs.AddPlanarSrf(fracture)
             # delete initial fracture drawn which is a curve
@@ -192,8 +198,8 @@ def FixedFractureGen(n, aspect_ratio=None,min_angle=None,max_angle=None,sides=No
             fracture_list.append(frac)       
     return fracture_list
 
-num_realisations = 500
-Vex = 362
+num_realisations = 250
+Vex = 216
 # list to store the percolation probability.
 # percolation probability = Np/num_of realisations
 # percolation probability is also the connectivity index 
@@ -203,8 +209,12 @@ percolation_probability = []
 rho_p = []
 # initialise fractures area for all realisations 
 fractures_area = 0
-
-for n in range(50,56,2): 
+# define path
+#path1 = "C:/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files/percolation_probability.txt"
+#path2 = "C:/Users/falol/AppData/Roaming/McNeel/Rhinoceros/6.0/scripts/text_files/open_area.txt"
+#file1 = open(path1, 'w')
+#file2 = open(path2, 'w')
+for n in range(140,155,5): 
     # number of realisations that percolate
     Np = 0
     for j in range(num_realisations):
@@ -215,7 +225,7 @@ for n in range(50,56,2):
         # NB: The arguments of FixedFractureGen() must be edited to suit the 
         # shape type, For instance, sides, min_angle and max_angle should be 
         # specified for a polygon
-        frac_list = FixedFractureGen(n, 0, 0, 90, 4) # inserts fractures and returns the GUIDs
+        frac_list = FixedFractureGen(n, 0, 3) # inserts fractures and returns the GUIDs
         f = fractures(frac_list)
         # get list of boundaries to test for percolation 
         boundary_list = dom.CreateBoundary(20)
