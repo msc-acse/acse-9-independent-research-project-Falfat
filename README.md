@@ -81,7 +81,7 @@ dom.RemoveSurfacesOutsideOfBox(dom.length)
 
 - Below is the architecture of Y-Frac's library. *The names of modules, methods and functions are intuitive.*
 
-![Y-Frac](./images/frac1.PNG)
+![Y-Frac](./images/fracc.PNG)
 
 - Documentation for some important methods is shown below:
 
