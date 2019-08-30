@@ -27,7 +27,7 @@ radius, boxlength, n, fracture_shape = Input.ReadFile(data)
 #dom.Show() 
 #
 ##insert n fractures in the domain
-#frac_list = DFN_Gen.FixedFractureGen(50,aspect_ratio=2,min_angle=0,max_angle =360, sides =5)
+#frac_list = DFN_Gen.FixedFractureGen(50,aspect_ratio=2 sides =5)
 
 #dom.RemoveSurfacesOutsideOfBox(dom.length)
 ### -- change the file path to the correct shape fracture data text file --###
